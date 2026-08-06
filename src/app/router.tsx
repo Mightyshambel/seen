@@ -1,6 +1,11 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Link, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
+import {
+  RedirectIfAuthed,
+  RequireAuth,
+  RequireOnboardingComplete,
+} from "@/app/RouteGuards";
 import { PageLoader } from "@/components/common/PageLoader";
 
 const LandingPage = lazy(() =>
@@ -14,6 +19,11 @@ const SignupPage = lazy(() =>
 );
 const ResetPasswordPage = lazy(() =>
   import("@/features/auth/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage })),
+);
+const ConfirmResetPasswordPage = lazy(() =>
+  import("@/features/auth/ConfirmResetPasswordPage").then((m) => ({
+    default: m.ConfirmResetPasswordPage,
+  })),
 );
 const OnboardingLayout = lazy(() =>
   import("@/features/onboarding/OnboardingLayout").then((m) => ({ default: m.OnboardingLayout })),
@@ -93,6 +103,9 @@ const SupportHistorySettings = lazy(() =>
 const SupportPage = lazy(() =>
   import("@/features/support/SupportPage").then((m) => ({ default: m.SupportPage })),
 );
+const AboutPage = lazy(() =>
+  import("@/features/static/AboutPage").then((m) => ({ default: m.AboutPage })),
+);
 const PrivacyPage = lazy(() =>
   import("@/features/static/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
 );
@@ -110,17 +123,34 @@ function withSuspense(element: ReactNode) {
   return <Suspense fallback={<PageLoader />}>{element}</Suspense>;
 }
 
+function withAuth(element: ReactNode) {
+  return withSuspense(<RequireAuth>{element}</RequireAuth>);
+}
+
+function withOnboarded(element: ReactNode) {
+  return withSuspense(
+    <RequireAuth>
+      <RequireOnboardingComplete>{element}</RequireOnboardingComplete>
+    </RequireAuth>,
+  );
+}
+
+function withGuest(element: ReactNode) {
+  return withSuspense(<RedirectIfAuthed>{element}</RedirectIfAuthed>);
+}
+
 export const router = createBrowserRouter([
   {
     element: <AppShell />,
     children: [
       { path: "/", element: withSuspense(<LandingPage />) },
       { path: "/login", element: withSuspense(<LoginPage />) },
-      { path: "/signup", element: withSuspense(<SignupPage />) },
+      { path: "/signup", element: withGuest(<SignupPage />) },
       { path: "/reset-password", element: withSuspense(<ResetPasswordPage />) },
+      { path: "/reset-password/confirm", element: withSuspense(<ConfirmResetPasswordPage />) },
       {
         path: "/onboarding",
-        element: withSuspense(<OnboardingLayout />),
+        element: withAuth(<OnboardingLayout />),
         children: [
           { index: true, element: <Navigate to="welcome" replace /> },
           { path: "welcome", element: withSuspense(<OnboardingWelcomePage />) },
@@ -130,13 +160,13 @@ export const router = createBrowserRouter([
           { path: "safety", element: withSuspense(<OnboardingSafetyPage />) },
         ],
       },
-      { path: "/matching", element: withSuspense(<MatchingPage />) },
-      { path: "/match/:id", element: withSuspense(<MatchDetailPage />) },
-      { path: "/chat", element: withSuspense(<ChatPage />) },
-      { path: "/chat/:id", element: withSuspense(<ChatPage />) },
+      { path: "/matching", element: withOnboarded(<MatchingPage />) },
+      { path: "/match/:id", element: withOnboarded(<MatchDetailPage />) },
+      { path: "/chat", element: withOnboarded(<ChatPage />) },
+      { path: "/chat/:id", element: withOnboarded(<ChatPage />) },
       {
         path: "/settings",
-        element: withSuspense(<SettingsLayout />),
+        element: withAuth(<SettingsLayout />),
         children: [
           { index: true, element: <Navigate to="privacy" replace /> },
           { path: "privacy", element: withSuspense(<PrivacySettings />) },
@@ -150,6 +180,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "/support", element: withSuspense(<SupportPage />) },
+      { path: "/about", element: withSuspense(<AboutPage />) },
       { path: "/privacy", element: withSuspense(<PrivacyPage />) },
       { path: "/terms", element: withSuspense(<TermsPage />) },
       { path: "/cookies", element: withSuspense(<CookiesPage />) },

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -11,6 +11,10 @@ import {
   AuthSubmitButton,
   SocialAuthButtons,
 } from "@/components/auth/AuthLayout";
+import { signup } from "@/lib/api/auth";
+import { ApiError } from "@/lib/api-client";
+import { routeAfterAuth } from "@/lib/auth-routing";
+import { clearLocalUserData, completeAuthSession } from "@/lib/session";
 import { signupSchema, type SignupFormValues } from "@/features/auth/schemas";
 import { signupLanguages, signupLocations, signupPronouns } from "@/lib/signup-options";
 import { useOnboarding } from "@/stores/onboarding";
@@ -20,6 +24,11 @@ export function SignupPage() {
   const { setLanguages, setPronouns, setLocation } = useOnboarding();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    clearLocalUserData();
+  }, []);
 
   const {
     register,
@@ -29,6 +38,7 @@ export function SignupPage() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       username: "",
+      email: "",
       pronouns: "",
       language: "",
       location: "",
@@ -37,11 +47,26 @@ export function SignupPage() {
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    setPronouns(data.pronouns);
-    setLanguages([data.language]);
-    setLocation(data.location ?? "");
-    navigate("/onboarding/welcome");
+  const onSubmit = handleSubmit(async (data) => {
+    setFormError(null);
+    try {
+      const response = await signup({
+        username: data.username,
+        email: data.email,
+        pronouns: data.pronouns,
+        language: data.language,
+        location: data.location,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+      });
+      setPronouns(data.pronouns);
+      setLanguages([data.language]);
+      setLocation(data.location ?? "");
+      await completeAuthSession(response.user);
+      navigate(routeAfterAuth(response.user));
+    } catch (error) {
+      setFormError(error instanceof ApiError ? error.message : "Unable to create your account right now.");
+    }
   });
 
   return (
@@ -65,12 +90,25 @@ export function SignupPage() {
       }
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        {formError && (
+          <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {formError}
+          </p>
+        )}
         <AuthField
           id="signup-username"
           label="Username"
           placeholder="Username"
           error={errors.username?.message}
           {...register("username")}
+        />
+        <AuthField
+          id="signup-email"
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          {...register("email")}
         />
         <AuthSelect
           id="signup-pronouns"
@@ -108,7 +146,7 @@ export function SignupPage() {
               type="button"
               aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-muted-foreground hover:text-foreground"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -126,7 +164,7 @@ export function SignupPage() {
               type="button"
               aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               onClick={() => setShowConfirmPassword((v) => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-muted-foreground hover:text-foreground"
             >
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>

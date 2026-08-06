@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { SeenLogo } from "@/components/brand/SeenLogo";
 import type { ReactNode } from "react";
 
 type AuthLayoutProps = {
@@ -10,20 +10,27 @@ type AuthLayoutProps = {
   promoTitle: string;
   promoSubtitle?: string;
   activeSlide?: number;
+  /** Full-bleed photo for the right panel. Defaults to the landing hero image. */
+  promoImage?: string;
 };
+
+const AUTH_PROMO_IMAGE = "/images/auth-promo.png";
 
 const slides = [
   {
     title: "Make hard chapters feel less lonely with Seen.",
     subtitle: "Quiet matching with someone who's been where you are.",
+    image: AUTH_PROMO_IMAGE,
   },
   {
     title: "Private conversations, gently held.",
     subtitle: "End-to-end encrypted. Human-moderated. Never sold.",
+    image: AUTH_PROMO_IMAGE,
   },
   {
     title: "Take it at your own pace.",
     subtitle: "Pause, return, or begin again whenever you're ready.",
+    image: AUTH_PROMO_IMAGE,
   },
 ];
 
@@ -35,17 +42,16 @@ export function AuthLayout({
   promoTitle,
   promoSubtitle,
   activeSlide = 0,
+  promoImage,
 }: AuthLayoutProps) {
   const slide = slides[activeSlide] ?? slides[0];
+  const imageSrc = promoImage ?? slide.image;
 
   return (
     <div className="min-h-dvh bg-background lg:grid lg:grid-cols-2">
       <div className="flex min-h-dvh flex-col px-6 py-10 sm:px-12 lg:px-16 lg:py-14">
-        <Link to="/" className="group inline-flex items-center gap-2.5 self-start">
-          <span className="logo-mark h-9 w-9 transition-transform duration-300 group-hover:scale-105">
-            <Heart className="h-4 w-4 text-sage" strokeWidth={1.6} />
-          </span>
-          <span className="font-serif text-[1.35rem] tracking-tight">Seen</span>
+        <Link to="/" className="group inline-flex self-start">
+          <SeenLogo className="h-14 transition-transform duration-300 group-hover:scale-105 sm:h-16" />
         </Link>
 
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-12">
@@ -58,77 +64,22 @@ export function AuthLayout({
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-gradient-to-br from-sage-soft/80 via-sage-soft/50 to-lavender-soft/30 p-10 lg:flex lg:flex-col lg:justify-between">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(50% 40% at 20% 20%, color-mix(in oklab, var(--sage) 20%, transparent), transparent 70%)," +
-              "radial-gradient(45% 35% at 80% 80%, color-mix(in oklab, var(--lavender) 15%, transparent), transparent 65%)",
-          }}
+      <aside className="relative hidden overflow-hidden lg:block">
+        <img
+          src={imageSrc}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="relative flex flex-1 items-center justify-center">
-          <div className="relative w-full max-w-md">
-            <div className="surface-glass absolute -left-2 top-8 px-5 py-4 shadow-[var(--shadow-elevated)]">
-              <p className="text-xs font-semibold">Peer match</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">94% understanding</p>
-              <div className="mt-3 h-1.5 w-28 overflow-hidden rounded-full bg-muted">
-                <div className="h-full w-[84%] rounded-full bg-sage shadow-[var(--shadow-glow-sage)]" />
-              </div>
-            </div>
+        <div className="absolute inset-0 bg-sage/55 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-b from-sage/70 via-sage/30 to-foreground/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-sage/55 via-transparent to-sage/25" />
 
-            <div className="mx-auto flex h-56 w-56 items-end justify-center rounded-[2rem] border border-border/30 bg-card/70 shadow-[var(--shadow-elevated)] backdrop-blur-xl">
-              <svg viewBox="0 0 200 220" className="h-52 w-52" aria-hidden>
-                <circle cx="100" cy="58" r="24" fill="none" stroke="currentColor" strokeWidth="3" />
-                <path
-                  d="M72 92c8-18 48-18 56 0v8c-12 8-44 8-56 0v-8Z"
-                  fill="var(--sage-soft)"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M68 118c6 34 58 34 64 0"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M82 150c8 24 28 24 36 0"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                <circle cx="145" cy="72" r="10" fill="var(--sage-soft)" stroke="currentColor" strokeWidth="2" />
-                <circle cx="58" cy="86" r="8" fill="var(--lavender-soft)" stroke="currentColor" strokeWidth="2" />
-              </svg>
-            </div>
-
-            <div className="absolute -right-1 bottom-10 rounded-full border border-border/40 bg-card/90 px-4 py-2.5 text-xs shadow-[var(--shadow-soft)] backdrop-blur-md">
-              Available now
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <div className="mb-6 flex justify-center gap-2">
-            {slides.map((_, i) => (
-              <span
-                key={i}
-                className={
-                  "h-2 w-2 rounded-full transition-all duration-300 " +
-                  (i === activeSlide ? "w-6 bg-foreground" : "bg-foreground/20")
-                }
-              />
-            ))}
-          </div>
-          <h2 className="font-serif text-2xl leading-snug text-foreground">
+        <div className="relative flex h-full min-h-dvh flex-col justify-end px-10 pb-14 pt-16">
+          <h2 className="max-w-md font-serif text-3xl leading-snug text-white">
             {promoTitle || slide.title}
           </h2>
           {(promoSubtitle || slide.subtitle) && (
-            <p className="mx-auto mt-3 max-w-sm text-sm text-muted-foreground">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/80">
               {promoSubtitle || slide.subtitle}
             </p>
           )}
@@ -169,7 +120,7 @@ export function AuthField({
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
-      <label htmlFor={id} className="sr-only">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">
         {label}
       </label>
       <div className="relative">
@@ -209,7 +160,7 @@ export function AuthSelect({
 } & React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <div>
-      <label htmlFor={id} className="sr-only">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">
         {label}
       </label>
       <select
@@ -251,28 +202,37 @@ export function AuthSubmitButton({ children, disabled }: { children: ReactNode; 
 
 export function SocialAuthButtons() {
   return (
-    <div className="flex justify-center gap-4">
-      <button
-        type="button"
-        aria-label="Continue with Google"
-        className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background shadow-[0_8px_20px_-8px_oklch(0.24_0.02_268_/_0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_oklch(0.24_0.02_268_/_0.4)] active:scale-95"
-      >
-        <GoogleIcon />
-      </button>
-      <button
-        type="button"
-        aria-label="Continue with Apple"
-        className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background shadow-[0_8px_20px_-8px_oklch(0.24_0.02_268_/_0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_oklch(0.24_0.02_268_/_0.4)] active:scale-95"
-      >
-        <AppleIcon />
-      </button>
-      <button
-        type="button"
-        aria-label="Continue with Facebook"
-        className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background shadow-[0_8px_20px_-8px_oklch(0.24_0.02_268_/_0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_oklch(0.24_0.02_268_/_0.4)] active:scale-95"
-      >
-        <FacebookIcon />
-      </button>
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex justify-center gap-4">
+        <button
+          type="button"
+          disabled
+          aria-label="Continue with Google (coming soon)"
+          title="Coming soon"
+          className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background opacity-40"
+        >
+          <GoogleIcon />
+        </button>
+        <button
+          type="button"
+          disabled
+          aria-label="Continue with Apple (coming soon)"
+          title="Coming soon"
+          className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background opacity-40"
+        >
+          <AppleIcon />
+        </button>
+        <button
+          type="button"
+          disabled
+          aria-label="Continue with Facebook (coming soon)"
+          title="Coming soon"
+          className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background opacity-40"
+        >
+          <FacebookIcon />
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground">Coming soon</p>
     </div>
   );
 }
