@@ -10,11 +10,16 @@ import {
   AuthSubmitButton,
   SocialAuthButtons,
 } from "@/components/auth/AuthLayout";
+import { login } from "@/lib/api/auth";
+import { ApiError } from "@/lib/api-client";
+import { routeAfterAuth } from "@/lib/auth-routing";
+import { completeAuthSession } from "@/lib/session";
 import { loginSchema, type LoginFormValues } from "@/features/auth/schemas";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -25,8 +30,15 @@ export function LoginPage() {
     defaultValues: { username: "", password: "" },
   });
 
-  const onSubmit = handleSubmit(() => {
-    navigate("/onboarding/welcome");
+  const onSubmit = handleSubmit(async (data) => {
+    setFormError(null);
+    try {
+      const response = await login(data);
+      await completeAuthSession(response.user);
+      navigate(routeAfterAuth(response.user));
+    } catch (error) {
+      setFormError(error instanceof ApiError ? error.message : "Unable to sign in right now.");
+    }
   });
 
   return (
@@ -51,6 +63,11 @@ export function LoginPage() {
       }
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        {formError && (
+          <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {formError}
+          </p>
+        )}
         <AuthField
           id="login-username"
           label="Username"
@@ -69,7 +86,7 @@ export function LoginPage() {
               type="button"
               aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-muted-foreground hover:text-foreground"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
