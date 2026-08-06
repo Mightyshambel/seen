@@ -93,6 +93,9 @@ const SupportHistorySettings = lazy(() =>
 const SupportPage = lazy(() =>
   import("@/features/support/SupportPage").then((m) => ({ default: m.SupportPage })),
 );
+const AboutPage = lazy(() =>
+  import("@/features/static/AboutPage").then((m) => ({ default: m.AboutPage })),
+);
 const PrivacyPage = lazy(() =>
   import("@/features/static/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
 );
@@ -150,6 +153,7 @@ export const router = createBrowserRouter([
         ],
       },
       { path: "/support", element: withSuspense(<SupportPage />) },
+      { path: "/about", element: withSuspense(<AboutPage />) },
       { path: "/privacy", element: withSuspense(<PrivacyPage />) },
       { path: "/terms", element: withSuspense(<TermsPage />) },
       { path: "/cookies", element: withSuspense(<CookiesPage />) },

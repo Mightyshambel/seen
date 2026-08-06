@@ -22,12 +22,12 @@ export const signupPronouns = [
 ];
 
 export const signupLocations = [
-  { value: "us", label: "United States" },
-  { value: "uk", label: "United Kingdom" },
-  { value: "ca", label: "Canada" },
-  { value: "au", label: "Australia" },
+  { value: "it", label: "Italy" },
   { value: "de", label: "Germany" },
-  { value: "fr", label: "France" },
+  { value: "us", label: "United States" },
+  { value: "nl", label: "Netherlands" },
+  { value: "sa", label: "Saudi Arabia" },
+  { value: "au", label: "Australia" },
   { value: "in", label: "India" },
   { value: "jp", label: "Japan" },
   { value: "br", label: "Brazil" },
