@@ -1,34 +1,41 @@
-import { useState } from "react";
+import { toast } from "sonner";
 import { SettingsPageIntro, SettingsToggleRow } from "@/components/settings/SettingsShell";
+import { ApiError } from "@/lib/api-client";
+import { syncSettingsPatch } from "@/lib/settings-sync";
+import { useSettings } from "@/stores/settings";
 
 export function AiPersonalizationSettings() {
-  const [prompts, setPrompts] = useState(true);
-  const [checkIns, setCheckIns] = useState(true);
+  const aiCheckIns = useSettings((s) => s.aiCheckIns);
+  const setAiCheckIns = useSettings((s) => s.setAiCheckIns);
+
+  const persist = async (value: boolean, rollback: () => void) => {
+    try {
+      await syncSettingsPatch({ aiCheckIns: value });
+    } catch (error) {
+      rollback();
+      toast.error(
+        error instanceof ApiError ? error.message : "Couldn't save that setting. Try again.",
+      );
+    }
+  };
 
   return (
     <>
       <SettingsPageIntro
         title="AI Personalization"
-        description="Control how our AI assists you in conversations and matching."
+        description="Optional gentle check-ins in quieter chats — not a chatbot, and this doesn’t change who you’re matched with."
       />
 
       <div className="surface-card p-6">
-        <div className="space-y-5">
-          <SettingsToggleRow
-            label="AI Conversation Prompts"
-            hint="Suggest gentle ways to reply when you're not sure what to say."
-            checked={prompts}
-            onChange={setPrompts}
-          />
-          <div className="border-t border-border/60 pt-5">
-            <SettingsToggleRow
-              label="Emotional Check-ins"
-              hint="Occasional gentle check-ins from our AI to see how you're coping."
-              checked={checkIns}
-              onChange={setCheckIns}
-            />
-          </div>
-        </div>
+        <SettingsToggleRow
+          label="Emotional check-ins"
+          hint="When you reopen a quieter chat, occasionally leave a soft check-in note."
+          checked={aiCheckIns}
+          onChange={(value) => {
+            setAiCheckIns(value);
+            void persist(value, () => setAiCheckIns(!value));
+          }}
+        />
       </div>
     </>
   );
