@@ -1,14 +1,17 @@
-import { useState } from "react";
 import { EyeOff, ShieldCheck } from "lucide-react";
 import {
   SettingsCard,
   SettingsPageIntro,
   SettingsToggleRow,
 } from "@/components/settings/SettingsShell";
+import { syncSettingsPatch } from "@/lib/settings-sync";
+import { useSettings } from "@/stores/settings";
 
 export function PrivacySettings() {
-  const [hideProfile, setHideProfile] = useState(false);
-  const [strictModeration, setStrictModeration] = useState(true);
+  const hideProfile = useSettings((s) => s.hideProfile);
+  const strictModeration = useSettings((s) => s.strictModeration);
+  const setHideProfile = useSettings((s) => s.setHideProfile);
+  const setStrictModeration = useSettings((s) => s.setStrictModeration);
 
   return (
     <>
@@ -27,7 +30,10 @@ export function PrivacySettings() {
             label="Hide my profile from new matches"
             hint="Take a break from meeting new people"
             checked={hideProfile}
-            onChange={setHideProfile}
+            onChange={(value) => {
+              setHideProfile(value);
+              void syncSettingsPatch({ hideProfile: value });
+            }}
           />
         </SettingsCard>
 
@@ -40,7 +46,10 @@ export function PrivacySettings() {
             label="Strict moderation mode"
             hint="Filter out potentially triggering language"
             checked={strictModeration}
-            onChange={setStrictModeration}
+            onChange={(value) => {
+              setStrictModeration(value);
+              void syncSettingsPatch({ strictModeration: value });
+            }}
           />
         </SettingsCard>
       </div>
