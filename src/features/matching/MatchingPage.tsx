@@ -1,35 +1,97 @@
 import { Link } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Check, Loader2, RefreshCw, Search } from "lucide-react";
+import { Check, Clock3, Loader2, RefreshCw, Search } from "lucide-react";
 import { MatchCard } from "@/components/matching/MatchCard";
-import { peers } from "@/lib/mock";
+import { SeenLogo } from "@/components/brand/SeenLogo";
+import { ApiError } from "@/lib/api-client";
+import { listConversations } from "@/lib/api/conversations";
+import { findMatch, getCurrentMatch, rematch } from "@/lib/api/matching";
+import type { MatchFoundPayload } from "@/lib/api/types";
+import { apiPeerToDisplay } from "@/lib/peer-mapper";
+import { subscribeWs } from "@/lib/ws-client";
 
 const MATCH_STEPS = [
-  "Profile vectorised with SBERT",
-  "Computing cosine similarity...",
-  "Ranking top matches",
-  "Adaptive filter — needs evolution check",
-  "Safety layer verified · Match ready",
+  "Reading what you shared",
+  "Looking for shared experience",
+  "Checking who is available",
+  "Making sure the match feels safe",
+  "Almost ready",
 ] as const;
+
+type MatchPhase = "finding" | "queued" | "results";
+
+function matchErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    if (error.status === 429) {
+      return "Too many matching attempts. Please wait a few minutes and try again.";
+    }
+    return error.message || fallback;
+  }
+  return fallback;
+}
 
 export function MatchingPage() {
   const reduce = useReducedMotion();
-  const [phase, setPhase] = useState<"finding" | "results">("finding");
+  const [phase, setPhase] = useState<MatchPhase>("finding");
   const [activeStep, setActiveStep] = useState(0);
   const [rematchKey, setRematchKey] = useState(0);
+  const [match, setMatch] = useState<MatchFoundPayload | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [rematching, setRematching] = useState(false);
 
-  const topMatches = useMemo(
-    () => [...peers].sort((a, b) => b.compatibility - a.compatibility).slice(0, 3),
-    [],
-  );
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMatch() {
+      setError(null);
+      try {
+        const current = await getCurrentMatch();
+        if (cancelled) return;
+
+        if (current.status === "matched") {
+          setMatch(current.match);
+          setPhase("results");
+          return;
+        }
+
+        const result = await findMatch();
+        if (cancelled) return;
+
+        if (result.status === "matched") {
+          setMatch(result.match);
+          setPhase("results");
+          return;
+        }
+
+        const conversations = await listConversations();
+        if (cancelled) return;
+        if (conversations.length > 0) {
+          setPhase("queued");
+          setError("You already have a conversation. Open it from the chat page.");
+          return;
+        }
+
+        setPhase("queued");
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(matchErrorMessage(loadError, "We couldn't start matching right now. Please try again."));
+          setPhase("queued");
+        }
+      }
+    }
+
+    void loadMatch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [rematchKey]);
 
   useEffect(() => {
     if (phase !== "finding") return;
 
     const stepDelay = reduce ? 400 : 900;
-    const finalDelay = reduce ? 500 : 1200;
-
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     MATCH_STEPS.forEach((_, index) => {
@@ -41,51 +103,115 @@ export function MatchingPage() {
       );
     });
 
-    timers.push(
-      setTimeout(() => {
-        setPhase("results");
-      }, stepDelay * (MATCH_STEPS.length - 1) + finalDelay),
-    );
-
     return () => timers.forEach(clearTimeout);
   }, [phase, reduce, rematchKey]);
 
-  const handleRematch = () => {
+  useEffect(() => {
+    return subscribeWs((event) => {
+      if (event.type !== "match.found") return;
+      const payload = event.match as MatchFoundPayload;
+      setMatch(payload);
+      setPhase("results");
+    });
+  }, []);
+
+  const handleRematch = async () => {
+    setRematching(true);
+    setError(null);
+    setMatch(null);
     setActiveStep(0);
     setPhase("finding");
-    setRematchKey((k) => k + 1);
+
+    try {
+      const current = await getCurrentMatch();
+      if (current.status === "matched") {
+        setMatch(current.match);
+        setPhase("results");
+        return;
+      }
+
+      const result = await rematch();
+      if (result.status === "matched") {
+        setMatch(result.match);
+        setPhase("results");
+      } else {
+        setPhase("queued");
+        setRematchKey((k) => k + 1);
+      }
+    } catch (rematchError) {
+      setError(matchErrorMessage(rematchError, "Rematch failed. Please try again in a moment."));
+      setPhase("queued");
+    } finally {
+      setRematching(false);
+    }
   };
 
-  if (phase === "results") {
+  if (phase === "results" && match) {
+    const peer = apiPeerToDisplay(match.peer);
+
     return (
       <div className="min-h-dvh bg-background pb-28">
         <header className="border-b border-border/60 bg-background/80 backdrop-blur">
           <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-5">
-            <Link to="/" className="font-serif text-lg">
-              Seen
+            <Link to="/" className="inline-block">
+              <SeenLogo className="h-9 sm:h-10" />
             </Link>
           </div>
         </header>
 
         <div className="mx-auto max-w-2xl px-5 py-10">
           <p className="eyebrow text-center text-muted-foreground">Match ready</p>
-          <h1 className="display-2 mt-3 text-center">Your top matches</h1>
+          <h1 className="display-2 mt-3 text-center">Your match is here</h1>
           <p className="mx-auto mt-3 max-w-md text-center text-sm text-muted-foreground">
-            Three people whose lived experience aligns closely with yours. Choose who feels right today.
+            Someone whose lived experience aligns closely with yours. Take your time before you reach out.
           </p>
 
           <ul className="mt-10 space-y-4">
-            {topMatches.map((peer, index) => (
-              <MatchCard key={peer.id} peer={peer} rank={index + 1} />
-            ))}
+            <MatchCard peer={peer} conversationId={match.conversationId} />
           </ul>
         </div>
 
         <div className="sticky-bar fixed inset-x-0 bottom-0 z-20 px-6 py-5">
           <div className="mx-auto max-w-2xl">
-            <button type="button" onClick={handleRematch} className="btn-secondary w-full">
+            <button
+              type="button"
+              onClick={() => void handleRematch()}
+              disabled={rematching}
+              className="btn-secondary w-full"
+            >
               <RefreshCw className="h-4 w-4" />
-              Rematch
+              {rematching ? "Finding someone new…" : "Rematch"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "queued") {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-background px-6 py-16">
+        <div className="w-full max-w-md text-center">
+          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage-soft text-sage">
+            <Clock3 className="h-7 w-7" />
+          </span>
+          <h1 className="display-2 mt-8">You&apos;re in the queue</h1>
+          <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            We&apos;re looking for someone compatible. You&apos;ll be notified here when a match is found — no need to refresh.
+          </p>
+          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+          <div className="mt-8 flex flex-col gap-3">
+            <Link to="/chat" className="btn-primary w-full max-w-sm mx-auto">
+              Go to conversations
+            </Link>
+            <button
+              type="button"
+              onClick={() => void handleRematch()}
+              disabled={rematching}
+              className="btn-secondary w-full max-w-sm mx-auto"
+            >
+              <RefreshCw className="h-4 w-4" />
+              {rematching ? "Trying again…" : "Try rematch"}
             </button>
           </div>
         </div>
@@ -114,7 +240,7 @@ export function MatchingPage() {
 
         <h1 className="display-2 mt-10">Finding your match</h1>
         <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          Our NLP engine is analysing your profile and computing semantic similarity across our community.
+          We&apos;re looking for someone whose lived experience sits close to yours.
         </p>
 
         <ul className="mx-auto mt-10 max-w-sm space-y-4 text-left">
