@@ -24,6 +24,7 @@ interface ChatState {
   connectPeer: (peerId: string) => string;
   appendMessage: (conversationId: string, message: Message) => void;
   markRead: (conversationId: string) => void;
+  resetToSeed: () => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -70,6 +71,7 @@ export const useChatStore = create<ChatState>()(
           ),
         });
       },
+      resetToSeed: () => set({ conversations: seedConversations }),
     }),
     { name: "seen-chats", skipHydration: true },
   ),
