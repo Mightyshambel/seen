@@ -1,5 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { SeenLogo } from "@/components/brand/SeenLogo";
 import { cn } from "@/lib/utils";
+import { logout } from "@/lib/api/auth";
+import { clearLocalUserData } from "@/lib/session";
+import { disconnectWs } from "@/lib/ws-client";
+import { queryClient } from "@/app/providers";
+import { useAuthStore } from "@/stores/auth";
 import {
   Accessibility,
   Bell,
@@ -7,6 +13,7 @@ import {
   Clock,
   Heart,
   Info,
+  LogOut,
   Shield,
   Sparkles,
   User,
@@ -34,7 +41,7 @@ export function SettingsShell({
       <SettingsTopHeader />
 
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-12 lg:grid-cols-[272px_1fr] lg:px-8">
-        <aside className="lg:sticky lg:top-10 lg:self-start">
+        <aside className="lg:sticky lg:top-[5.5rem] lg:self-start">
           <h1 className="font-serif text-[2.625rem] leading-none tracking-tight text-foreground">
             Settings
           </h1>
@@ -88,32 +95,40 @@ export function SettingsShell({
 }
 
 function SettingsTopHeader() {
+  const navigate = useNavigate();
+  const clearAuth = useAuthStore((s) => s.clear);
+
+  const handleSignOut = async () => {
+    await logout();
+    disconnectWs();
+    queryClient.clear();
+    clearLocalUserData();
+    clearAuth();
+    navigate("/login");
+  };
+
   return (
-    <header className="border-b border-border/50 bg-surface-muted/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border/50 bg-surface-muted/90 backdrop-blur-xl">
       <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between px-6 lg:px-8">
-        <Link to="/" className="group flex items-center gap-2.5">
-          <span className="logo-mark h-9 w-9 transition-transform duration-300 group-hover:scale-105">
-            <Heart className="h-4 w-4 text-sage" strokeWidth={1.6} />
-          </span>
-          <span className="font-serif text-xl tracking-tight text-foreground">Seen</span>
+        <Link to="/chat" className="group inline-flex" aria-label="Back to chat">
+          <SeenLogo className="h-12 transition-transform duration-300 group-hover:scale-105 sm:h-14" />
         </Link>
 
-        <div className="flex items-center gap-6 text-[14px] text-muted-foreground">
-          <a href="/#about" className="nav-link hidden sm:inline">
-            About us
-          </a>
-          <a href="/#mission" className="nav-link hidden md:inline">
-            Mission & Vision
-          </a>
-          <a href="/#contact" className="nav-link hidden md:inline">
-            Contact
-          </a>
-          <Link to="/login" className="link-muted">
-            Sign in
+        <div className="flex items-center gap-3">
+          <Link to="/matching" className="nav-link hidden text-sm sm:inline">
+            Matching
           </Link>
-          <Link to="/onboarding/welcome" className="btn-secondary px-4 py-2 text-[13px]">
-            Find your person
+          <Link to="/chat" className="nav-link hidden text-sm sm:inline">
+            Chat
           </Link>
+          <button
+            type="button"
+            onClick={() => void handleSignOut()}
+            className="btn-secondary inline-flex min-h-11 items-center gap-2 px-4 text-sm"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </button>
         </div>
       </div>
     </header>
@@ -222,11 +237,13 @@ export function SettingsLinkRow({
   value,
   href,
   danger,
+  onClick,
 }: {
   label: string;
   value?: string;
   href?: string;
   danger?: boolean;
+  onClick?: () => void;
 }) {
   const content = (
     <>
@@ -252,7 +269,7 @@ export function SettingsLinkRow({
   }
 
   return (
-    <button type="button" className={className}>
+    <button type="button" className={className} onClick={onClick}>
       {content}
     </button>
   );

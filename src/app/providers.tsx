@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "react-router-dom";
+import { SessionProvider } from "@/app/SessionProvider";
 import { router } from "@/app/router";
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60_000,
@@ -14,7 +15,9 @@ const queryClient = new QueryClient({
 export function Providers() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <SessionProvider>
+        <RouterProvider router={router} />
+      </SessionProvider>
     </QueryClientProvider>
   );
 }

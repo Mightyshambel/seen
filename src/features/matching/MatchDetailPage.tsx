@@ -1,9 +1,15 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Bookmark, Clock, Sparkles } from "lucide-react";
-import { emotionalLabels, experienceLabels, getPeerById } from "@/lib/mock";
+import { PageLoader } from "@/components/common/PageLoader";
+import { SeenLogo } from "@/components/brand/SeenLogo";
+import { useMatchPeer } from "@/hooks/useApiQueries";
+import { toggleConversationSaved } from "@/lib/api/conversations";
+import { emotionalLabels, experienceLabels } from "@/lib/mock";
 import { useMountReveal } from "@/lib/motion-presets";
-import { useChatStore } from "@/stores/chat";
+import { apiPeerToDisplay } from "@/lib/peer-mapper";
+import { cn } from "@/lib/utils";
+import { useSettings } from "@/stores/settings";
 
 function availabilityLabel(availability: "now" | "today" | "this-week") {
   if (availability === "now") return "Available now";
@@ -19,23 +25,58 @@ function supportStyleLabel(style: "listener" | "sharer" | "both") {
 
 export function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const peer = id ? getPeerById(id) : undefined;
+  const location = useLocation();
+  const conversationId = (location.state as { conversationId?: string } | null)?.conversationId;
+  const { data: apiPeer, isLoading, isError, refetch, isFetching } = useMatchPeer(id);
   const reveal = useMountReveal();
   const reduce = useReducedMotion();
-  const connectPeer = useChatStore((s) => s.connectPeer);
+  const isSaved = useSettings((s) => s.isSaved);
 
-  if (!peer) {
-    return <Navigate to="/matching" replace />;
+  if (isLoading) {
+    return <PageLoader />;
   }
 
-  const conversationId = `c-${peer.id}`;
+  if (isError || !apiPeer || !id) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-background px-6">
+        <div className="w-full max-w-md text-center">
+          <h1 className="display-3">We couldn&apos;t load this match</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Something went wrong fetching their profile. You can try again, or head back to matching.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              className="btn-primary min-h-11"
+            >
+              {isFetching ? "Trying again…" : "Retry"}
+            </button>
+            <Link to="/matching" className="btn-secondary min-h-11">
+              Back to matching
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const peer = apiPeerToDisplay(apiPeer);
+  const saved = conversationId ? isSaved(conversationId) : false;
+
+  const handleSave = async () => {
+    if (!conversationId) return;
+    const result = await toggleConversationSaved(conversationId);
+    useSettings.setState({ savedConversationIds: result.savedConversationIds });
+  };
 
   return (
     <div className="min-h-dvh bg-background pb-32">
       <header className="border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-5">
-          <Link to="/" className="font-serif text-lg">
-            Seen
+          <Link to="/" className="inline-block">
+            <SeenLogo className="h-9 sm:h-10" />
           </Link>
           <Link to="/matching" className="text-sm text-muted-foreground hover:text-foreground">
             Back
@@ -71,17 +112,20 @@ export function MatchDetailPage() {
                 {peer.initial}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-sage-soft px-3 py-1 text-xs text-sage">
-                <span className="h-1.5 w-1.5 rounded-full bg-sage" /> {availabilityLabel(peer.availability)}
+                <span className="h-1.5 w-1.5 rounded-full bg-sage" />{" "}
+                {availabilityLabel(peer.availability)}
               </span>
             </div>
             <h2 className="display-3 mt-5">
               {peer.name}{" "}
               <span className="ml-1 text-base text-muted-foreground">· {peer.pronouns}</span>
             </h2>
-            <p className="text-sm text-muted-foreground">{peer.city}</p>
-            <p className="mt-5 font-serif text-lg leading-relaxed italic text-foreground/90">
-              &ldquo;{peer.bio}&rdquo;
-            </p>
+            {peer.city ? <p className="text-sm text-muted-foreground">{peer.city}</p> : null}
+            {peer.bio ? (
+              <p className="mt-5 font-serif text-lg leading-relaxed italic text-foreground/90">
+                &ldquo;{peer.bio}&rdquo;
+              </p>
+            ) : null}
 
             <div className="mt-7">
               <p className="eyebrow text-muted-foreground">Shared ground</p>
@@ -129,27 +173,39 @@ export function MatchDetailPage() {
           </div>
         </motion.article>
 
-        <motion.div
-          {...reveal(0.25)}
-          className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 px-5 py-4 backdrop-blur"
-        >
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground/80 hover:text-foreground"
-            >
-              <Bookmark className="h-4 w-4" /> Save for later
-            </button>
-            <Link
-              to={`/chat/${conversationId}`}
-              onClick={() => connectPeer(peer.id)}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background"
-            >
-              Start the conversation <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </motion.div>
+        {conversationId && (
+          <motion.div
+            {...reveal(0.25)}
+            className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 px-5 py-4 backdrop-blur"
+          >
+            <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium transition-colors",
+                  saved ? "text-sage" : "text-foreground/80 hover:text-foreground",
+                )}
+              >
+                <Bookmark className={cn("h-4 w-4", saved && "fill-current")} />
+                {saved ? "Saved" : "Save for later"}
+              </button>
+              <Link
+                to={`/chat/${conversationId}`}
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background"
+              >
+                Start the conversation <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
       </div>
+
+      {!conversationId && (
+        <div className="mx-auto max-w-2xl px-5 pb-8 text-center text-sm text-muted-foreground">
+          Open this profile from your latest match to start chatting.
+        </div>
+      )}
     </div>
   );
 }
