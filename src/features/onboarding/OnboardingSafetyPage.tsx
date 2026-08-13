@@ -83,7 +83,7 @@ function SafetyCheckbox({
   label: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-card p-5">
+    <label className="flex items-start gap-3 rounded-2xl border border-border bg-card p-5">
       <input
         type="checkbox"
         checked={checked}

@@ -317,7 +317,6 @@
   .btn-primary:disabled {
     opacity: 0.45;
     transform: none;
-    cursor: not-allowed;
   }
 
   .btn-secondary {
@@ -606,6 +605,102 @@
     padding: 0.375rem 0.875rem;
     color: oklch(1 0 0 / 0.82);
     backdrop-filter: blur(12px);
+  }
+
+  /* Landing section bands — primary / white on-off rhythm */
+  .landing-band-light {
+    background-color: #ffffff;
+    color: var(--foreground);
+  }
+
+  .landing-band-sage {
+    /* Soft sage closer to the hero wash — solid palette-sage reads darker */
+    background-color: color-mix(in oklab, var(--palette-sage) 68%, white);
+    color: var(--palette-ivory);
+  }
+
+  .landing-band-sage .eyebrow,
+  .landing-band-sage .text-muted-foreground {
+    color: oklch(1 0 0 / 0.72);
+  }
+
+  .landing-band-sage .text-foreground,
+  .landing-band-sage .display-1,
+  .landing-band-sage .display-2,
+  .landing-band-sage .display-3,
+  .landing-band-sage h1,
+  .landing-band-sage h2,
+  .landing-band-sage h3 {
+    color: var(--palette-ivory);
+  }
+
+  .landing-band-sage .text-sage,
+  .landing-band-sage em {
+    color: color-mix(in oklab, var(--palette-ivory) 88%, white);
+  }
+
+  .landing-band-sage .border-border\/60,
+  .landing-band-sage .border-border\/70,
+  .landing-band-sage .divide-border\/60 > :not([hidden]) ~ :not([hidden]) {
+    border-color: oklch(1 0 0 / 0.18);
+  }
+
+  .landing-band-sage .surface-card {
+    background-color: oklch(1 0 0 / 0.12);
+    border-color: oklch(1 0 0 / 0.18);
+    color: var(--palette-ivory);
+    box-shadow: none;
+  }
+
+  .landing-band-sage .surface-card:hover {
+    background-color: oklch(1 0 0 / 0.16);
+  }
+
+  .landing-band-sage .btn-secondary {
+    border-color: oklch(1 0 0 / 0.35);
+    background-color: transparent;
+    color: var(--palette-ivory);
+  }
+
+  .landing-band-sage .btn-secondary:hover {
+    background-color: oklch(1 0 0 / 0.12);
+    border-color: oklch(1 0 0 / 0.5);
+  }
+
+  .landing-band-sage .btn-primary {
+    background-color: var(--palette-ivory);
+    color: var(--palette-sage);
+    box-shadow: none;
+  }
+
+  .landing-band-sage .btn-primary:hover {
+    background-color: white;
+  }
+
+  .landing-band-sage .field-soft {
+    background-color: oklch(1 0 0 / 0.95);
+    color: var(--foreground);
+    border-color: transparent;
+  }
+
+  .landing-band-sage .bg-sage-soft {
+    background-color: oklch(1 0 0 / 0.16);
+  }
+
+  .landing-band-sage .bg-background {
+    background-color: oklch(1 0 0 / 0.95);
+  }
+
+  /* Nav-linked landing sections share one vertical rhythm */
+  .landing-section-equal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100dvh;
+  }
+
+  .landing-section-equal > * {
+    width: 100%;
   }
 }
 

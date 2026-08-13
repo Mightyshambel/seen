@@ -140,9 +140,31 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="about" className="border-t border-border/60 bg-background">
+      <section id="about" className="landing-band-light landing-section-equal">
         <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
           <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
+            About us
+          </motion.p>
+          <motion.h2 {...reveal(0.05)} className="display-2 mt-3 max-w-2xl">
+            A quiet company for the chapters that need <em className="italic text-sage">company.</em>
+          </motion.h2>
+          <motion.p {...reveal(0.08)} className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            Seen began with a simple belief: the loneliest moments are often the ordinary ones — when
+            no one around you has lived what you&apos;re living. We built a place where one person who
+            understands can meet you there.
+          </motion.p>
+          <motion.div {...reveal(0.12)} className="mt-10">
+            <Link to="/about" className="btn-secondary group">
+              Learn more about us
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="landing-band-sage">
+        <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
+          <motion.p {...reveal(0)} className="eyebrow">
             How matching works
           </motion.p>
           <motion.h2 {...reveal(0.05)} className="display-2 mt-3 max-w-2xl">
@@ -184,7 +206,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-sand/30">
+      <section className="landing-band-light">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 py-24 md:grid-cols-2 md:py-28">
           <motion.div {...reveal(0)}>
             <p className="eyebrow text-muted-foreground">Our mission</p>
@@ -206,11 +228,11 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="mission" className="border-t border-border/60 bg-background">
+      <section id="mission" className="landing-band-sage landing-section-equal">
         <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             <motion.div {...reveal(0)}>
-              <p className="eyebrow text-muted-foreground">Emotional safety</p>
+              <p className="eyebrow">Emotional safety</p>
               <h2 className="display-2 mt-3">
                 A layer of care you&apos;ll rarely see — and always be held by.
               </h2>
@@ -254,7 +276,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-ivory">
+      <section className="landing-band-light">
         <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
           <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
             From people on Seen
@@ -277,13 +299,13 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="border-t border-border/60 bg-background">
+      <section className="landing-band-sage">
         <div className="mx-auto max-w-4xl px-6 py-28 text-center md:py-32">
-          <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
+          <motion.p {...reveal(0)} className="eyebrow">
             Privacy by design
           </motion.p>
           <motion.h2 {...reveal(0.05)} className="display-2 mt-3">
-            Only your first name. Only your story. <em className="italic text-sage">Never sold.</em>
+            Only your first name. Only your story. <em className="italic">Never sold.</em>
           </motion.h2>
           <motion.p {...reveal(0.1)} className="mx-auto mt-5 max-w-2xl text-muted-foreground">
             Conversations are end-to-end encrypted. We don&apos;t sell data, run ads, or share what
@@ -292,7 +314,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="faq" className="bg-sand/30">
+      <section id="faq" className="landing-band-light">
         <div className="mx-auto max-w-3xl px-6 py-28 md:py-32">
           <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
             Frequently asked
@@ -313,30 +335,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden border-t border-border/60 bg-background">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            background:
-              "radial-gradient(55% 60% at 50% 100%, color-mix(in oklab, var(--sage) 18%, transparent), transparent 70%)",
-          }}
-        />
-        <div className="mx-auto max-w-3xl px-6 py-28 text-center">
-          <h2 className="display-1">When you&apos;re ready, we&apos;re here.</h2>
-          <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            There&apos;s no pressure. Begin when it feels right. You can pause at any moment.
-          </p>
-          <Link to="/onboarding/welcome" className="btn-primary mt-10">
-            Begin Seen
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
-      <section id="partner" className="border-t border-border/60 bg-background">
+      <section id="partner" className="landing-band-sage landing-section-equal">
         <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
-          <motion.p {...reveal(0)} className="eyebrow text-center text-muted-foreground">
+          <motion.p {...reveal(0)} className="eyebrow text-center">
             Partner with us
           </motion.p>
           <motion.h2 {...reveal(0.05)} className="display-2 mt-3 text-center">
@@ -385,7 +386,7 @@ function ContactSection({ reveal }: { reveal: ReturnType<typeof useScrollReveal>
   };
 
   return (
-    <section id="contact" className="border-t border-border/60 bg-sand/30">
+    <section id="contact" className="landing-band-light landing-section-equal">
       <div className="mx-auto max-w-2xl px-6 py-28 md:py-32">
         <motion.p {...reveal(0)} className="eyebrow text-center text-muted-foreground">
           Contact us

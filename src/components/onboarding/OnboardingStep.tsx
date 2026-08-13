@@ -45,7 +45,7 @@ function OnboardingActionBar({
           type="button"
           disabled={!canContinue || !next}
           onClick={handleContinue}
-          className="btn-primary min-h-11 px-7 py-3 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-primary min-h-11 px-7 py-3 disabled:opacity-40"
         >
           {nextLabel}
           <ArrowRight className="h-4 w-4" />

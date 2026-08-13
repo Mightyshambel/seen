@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { SeenLogo } from "@/components/brand/SeenLogo";
 import { openConsentPreferences } from "@/components/common/ConsentBanner";
 import { cn } from "@/lib/utils";
 import { scrollToSection } from "@/lib/scroll-to-section";
@@ -65,18 +65,11 @@ export function SiteHeader({
       )}
     >
       <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="group flex items-center gap-2.5">
-          <span className="logo-mark grid h-9 w-9 place-items-center transition-transform duration-300 group-hover:scale-105">
-            <Heart className="h-4 w-4 text-sage" strokeWidth={1.6} />
-          </span>
-          <span
-            className={cn(
-              "font-serif text-[1.35rem] tracking-tight",
-              hero ? "text-white" : "text-foreground",
-            )}
-          >
-            Seen
-          </span>
+        <Link to="/" className="group inline-flex items-center">
+          <SeenLogo
+            tone={hero ? "light" : "default"}
+            className="h-10 w-10 transition-transform duration-300 group-hover:scale-105 sm:h-11 sm:w-11"
+          />
         </Link>
         <nav className="hidden items-center gap-8 text-sm md:flex">
           {NAV_SECTIONS.map(({ label, id }) => (
@@ -99,12 +92,7 @@ export function SiteFooter() {
     <footer className="border-t border-border/50 bg-background/90">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <span className="logo-mark grid h-9 w-9 place-items-center">
-              <Heart className="h-4 w-4 text-sage" strokeWidth={1.6} />
-            </span>
-            <span className="font-serif text-xl">Seen</span>
-          </div>
+          <SeenLogo className="h-11 w-11" />
           <p className="mt-4 max-w-xs text-xs leading-relaxed text-muted-foreground">
             Seen is peer support, not a substitute for professional mental healthcare. If
             you&apos;re in crisis, please reach out to a licensed provider.

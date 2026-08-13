@@ -270,7 +270,7 @@ function Toggle({
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
       className={`inline-flex h-11 w-11 shrink-0 items-center justify-center ${
-        disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+        disabled ? "opacity-60" : ""
       }`}
     >
       <span
