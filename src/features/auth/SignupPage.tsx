@@ -25,7 +25,6 @@ export function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [notRobot, setNotRobot] = useState(false);
 
   useEffect(() => {
     clearLocalUserData();
@@ -66,11 +65,7 @@ export function SignupPage() {
       await completeAuthSession(response.user);
       navigate(routeAfterAuth(response.user));
     } catch (error) {
-      setFormError(
-        error instanceof ApiError
-          ? error.message
-          : "Unable to reach the Seen API. Start the backend on port 8001 and try again.",
-      );
+      setFormError(error instanceof ApiError ? error.message : "Unable to create your account right now.");
     }
   });
 

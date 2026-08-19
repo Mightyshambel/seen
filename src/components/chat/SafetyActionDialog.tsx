@@ -126,7 +126,7 @@ export function SafetyActionDialog({
               <label
                 key={item.value}
                 className={
-                  "flex items-start gap-3 rounded-xl border px-4 py-3 transition-colors " +
+                  "flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-colors " +
                   (checked ? "border-sage bg-sage-soft" : "border-border hover:bg-surface-muted")
                 }
               >
