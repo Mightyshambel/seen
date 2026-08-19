@@ -115,11 +115,11 @@ export function LandingPage() {
               <div className="hero-glass-panel p-8 md:p-10">
                 <div className="flex items-center gap-3">
                   <span className="grid h-11 w-11 place-items-center rounded-full bg-white/15 font-serif text-lg text-white backdrop-blur-sm">
-                    M
+                    S
                   </span>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-white">Maya · she/her</p>
-                    <p className="text-xs text-white/72">Matched through grief · 94% understanding</p>
+                    <p className="text-sm font-medium text-white">Sofia · she/her</p>
+                    <p className="text-xs text-white/72">Matched through life transition · 94% understanding</p>
                   </div>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
                     <span className="h-1.5 w-1.5 rounded-full bg-sage-soft" />
@@ -127,8 +127,8 @@ export function LandingPage() {
                   </span>
                 </div>
                 <p className="mt-5 text-left font-serif text-lg leading-relaxed italic text-white/92">
-                  &ldquo;The quiet after they&apos;re gone is its own kind of grief. I sit with it most
-                  nights too.&rdquo;
+                  &ldquo;I moved to a different country last month. It&apos;s really hard to find a
+                  community in here.&rdquo;
                 </p>
                 <div className="mt-5 flex items-center justify-between text-xs text-white/65">
                   <span>Conversation warmth · gentle</span>
