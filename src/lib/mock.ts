@@ -130,7 +130,17 @@ export interface Message {
   from: "me" | "peer";
   text: string;
   time: string;
-  kind?: "text" | "prompt" | "grounding" | "reminder" | "voice";
+  kind?: "text" | "prompt" | "grounding" | "reminder" | "voice" | "image" | "document";
+  mediaUrl?: string;
+  durationMs?: number;
+  fileName?: string;
+  replyToId?: string;
+  replyPreview?: string;
+  editedAt?: string;
+  deleted?: boolean;
+  forwarded?: boolean;
+  reactions?: Array<{ emoji: string; count: number; mine: boolean }>;
+  readByPeer?: boolean;
 }
 
 export interface Conversation {
@@ -287,27 +297,39 @@ export const faqs = [
 
 export const crisisResources = [
   {
+    region: "Global",
+    name: "Find a Helpline",
+    contact: "Directory by country",
+    url: "https://findahelpline.com",
+  },
+  {
+    region: "Italy",
+    name: "Telefono Amico",
+    contact: "Call 02 2327 2327",
+    url: "https://www.telefonoamico.it",
+  },
+  {
+    region: "Germany",
+    name: "Telefonseelsorge",
+    contact: "Call 0800 111 0 111",
+    url: "https://www.telefonseelsorge.de",
+  },
+  {
     region: "United States",
     name: "988 Suicide & Crisis Lifeline",
     contact: "Call or text 988",
     url: "https://988lifeline.org",
   },
   {
-    region: "United Kingdom",
-    name: "Samaritans",
-    contact: "Call 116 123",
-    url: "https://www.samaritans.org",
+    region: "Netherlands",
+    name: "113 Zelfmoordpreventie",
+    contact: "Call 0800-0113",
+    url: "https://www.113.nl",
   },
   {
-    region: "Canada",
-    name: "Talk Suicide Canada",
-    contact: "Call 1-833-456-4566",
-    url: "https://talksuicide.ca",
-  },
-  {
-    region: "Global",
-    name: "Find a Helpline",
-    contact: "Directory by country",
-    url: "https://findahelpline.com",
+    region: "Saudi Arabia",
+    name: "National Center for Mental Health",
+    contact: "Call 920 033 360",
+    url: "https://www.ncmh.org.sa",
   },
 ];

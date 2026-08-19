@@ -1,15 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, Heart, Leaf, Lock, MessageCircle, Send, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Heart, Lock, Send, ShieldCheck, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteChrome";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { faqs, partners, testimonials } from "@/lib/mock";
+import { sendContactMessage } from "@/lib/api/contact";
+import { partners } from "@/lib/mock";
 import { useScrollReveal } from "@/lib/motion-presets";
 import { scrollToSection } from "@/lib/scroll-to-section";
 
@@ -100,9 +95,6 @@ export function LandingPage() {
                   Find your person
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </Link>
-                <Link to="/onboarding/welcome" className="btn-hero-secondary">
-                  I want to help someone
-                </Link>
               </div>
               <div className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-xs">
                 <Trust icon={<Lock className="h-3.5 w-3.5" />} label="End-to-end private" />
@@ -110,107 +102,58 @@ export function LandingPage() {
                 <Trust icon={<Heart className="h-3.5 w-3.5" />} label="Never sold or advertised" />
               </div>
             </div>
-
-            <div className="relative mx-auto w-full max-w-3xl px-6 pb-10 md:px-10 md:pb-12">
-              <div className="hero-glass-panel p-8 md:p-10">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-white/15 font-serif text-lg text-white backdrop-blur-sm">
-                    M
-                  </span>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-white">Maya · she/her</p>
-                    <p className="text-xs text-white/72">Matched through grief · 94% understanding</p>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
-                    <span className="h-1.5 w-1.5 rounded-full bg-sage-soft" />
-                    Available now
-                  </span>
-                </div>
-                <p className="mt-5 text-left font-serif text-lg leading-relaxed italic text-white/92">
-                  &ldquo;The quiet after they&apos;re gone is its own kind of grief. I sit with it most
-                  nights too.&rdquo;
-                </p>
-                <div className="mt-5 flex items-center justify-between text-xs text-white/65">
-                  <span>Conversation warmth · gentle</span>
-                  <span>9:50 PM</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="border-t border-border/60 bg-background">
-        <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
+      <section id="about" className="landing-section landing-band-light">
+        <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
           <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
-            How matching works
+            About us
           </motion.p>
           <motion.h2 {...reveal(0.05)} className="display-2 mt-3 max-w-2xl">
-            Three quiet steps. No pressure to perform.
+            A quiet company for the chapters that need <em className="italic text-sage">company.</em>
           </motion.h2>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                n: "01",
-                t: "Reflect",
-                d: "A short, guided check-in. One emotional decision per screen. Skip anything that doesn't fit.",
-                icon: <Leaf className="h-5 w-5" />,
-              },
-              {
-                n: "02",
-                t: "Be matched",
-                d: "We find one person whose lived experience and emotional state meets yours — not a feed of strangers.",
-                icon: <Users className="h-5 w-5" />,
-              },
-              {
-                n: "03",
-                t: "Talk softly",
-                d: "A private conversation with gentle prompts, optional grounding, and a safety layer you'll never have to think about.",
-                icon: <MessageCircle className="h-5 w-5" />,
-              },
-            ].map((s, i) => (
-              <motion.div key={s.n} {...reveal(0.05 * i)} className="surface-card p-8">
-                <div className="flex items-center justify-between">
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-sage-soft text-sage">
-                    {s.icon}
-                  </span>
-                  <span className="font-serif text-sm text-muted-foreground">{s.n}</span>
-                </div>
-                <h3 className="display-3 mt-6">{s.t}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.d}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-sand/30">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-24 md:grid-cols-2 md:py-28">
-          <motion.div {...reveal(0)}>
-            <p className="eyebrow text-muted-foreground">Our mission</p>
-            <h2 className="display-2 mt-3">
-              Built for the chapters that <em className="italic text-sage">don&apos;t have an easy ending.</em>
-            </h2>
-          </motion.div>
-          <motion.div {...reveal(0.1)} className="text-base leading-relaxed text-muted-foreground">
-            <p>
-              Grief. Recovery. Burnout. The slow unraveling after a relationship ends. The hours
-              of caregiving no one sees. The long quiet between who you were and who you&apos;re
-              becoming.
-            </p>
-            <p className="mt-4">
-              You don&apos;t need another app trying to fix you. You need a person who&apos;s been
-              there — and a place that holds space for both of you. That&apos;s what Seen is.
-            </p>
+          <motion.p {...reveal(0.08)} className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            Seen began with a simple belief: the loneliest moments are often the ordinary ones — when
+            no one around you has lived what you&apos;re living. We built a place where one person who
+            understands can meet you there.
+          </motion.p>
+          <motion.div {...reveal(0.12)} className="mt-10">
+            <Link to="/about" className="btn-secondary group">
+              Learn more about us
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            </Link>
           </motion.div>
         </div>
       </section>
 
-      <section id="mission" className="border-t border-border/60 bg-background">
-        <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
-          <div className="grid gap-12 md:grid-cols-2 md:items-center">
+      <section id="mission" className="landing-section landing-band-sage">
+        <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+          <div className="grid gap-12 md:grid-cols-2">
             <motion.div {...reveal(0)}>
-              <p className="eyebrow text-muted-foreground">Emotional safety</p>
+              <p className="eyebrow">Mission &amp; Vision</p>
+              <h2 className="display-2 mt-3">
+                Built for the chapters that{" "}
+                <em className="italic">don&apos;t have an easy ending.</em>
+              </h2>
+            </motion.div>
+            <motion.div {...reveal(0.1)} className="text-base leading-relaxed text-muted-foreground">
+              <p>
+                Grief. Recovery. Burnout. The slow unraveling after a relationship ends. The hours
+                of caregiving no one sees. The long quiet between who you were and who you&apos;re
+                becoming.
+              </p>
+              <p className="mt-4">
+                You don&apos;t need another app trying to fix you. You need a person who&apos;s been
+                there — and a place that holds space for both of you. That&apos;s what Seen is.
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="mt-12 grid gap-10 border-t border-border/60 pt-12 md:grid-cols-2 md:items-center">
+            <motion.div {...reveal(0)}>
+              <p className="eyebrow">Our vision</p>
               <h2 className="display-2 mt-3">
                 A layer of care you&apos;ll rarely see — and always be held by.
               </h2>
@@ -254,88 +197,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-ivory">
-        <div className="mx-auto max-w-6xl px-6 py-28 md:py-32">
-          <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
-            From people on Seen
-          </motion.p>
-          <motion.h2 {...reveal(0.05)} className="display-2 mt-3 max-w-2xl">
-            Small moments of being understood.
-          </motion.h2>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {testimonials.map((t, i) => (
-              <motion.figure key={t.name} {...reveal(0.05 * i)} className="surface-card p-8">
-                <blockquote className="font-serif text-lg italic leading-relaxed text-foreground/90">
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-                <figcaption className="mt-5 text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{t.name}</span> · {t.context}
-                </figcaption>
-              </motion.figure>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-border/60 bg-background">
-        <div className="mx-auto max-w-4xl px-6 py-28 text-center md:py-32">
-          <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
-            Privacy by design
-          </motion.p>
-          <motion.h2 {...reveal(0.05)} className="display-2 mt-3">
-            Only your first name. Only your story. <em className="italic text-sage">Never sold.</em>
-          </motion.h2>
-          <motion.p {...reveal(0.1)} className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            Conversations are end-to-end encrypted. We don&apos;t sell data, run ads, or share what
-            you share with anyone outside our trained safety team.
-          </motion.p>
-        </div>
-      </section>
-
-      <section id="faq" className="bg-sand/30">
-        <div className="mx-auto max-w-3xl px-6 py-28 md:py-32">
-          <motion.p {...reveal(0)} className="eyebrow text-muted-foreground">
-            Frequently asked
-          </motion.p>
-          <motion.h2 {...reveal(0.05)} className="display-2 mt-3">
-            Questions, gently answered.
-          </motion.h2>
-          <Accordion type="single" collapsible className="mt-10">
-            {faqs.map((f) => (
-              <AccordionItem key={f.q} value={f.q} className="border-b border-border/70">
-                <AccordionTrigger className="py-5 text-left font-serif text-lg">
-                  {f.q}
-                </AccordionTrigger>
-                <AccordionContent className="pb-5 text-muted-foreground">{f.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden border-t border-border/60 bg-background">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            background:
-              "radial-gradient(55% 60% at 50% 100%, color-mix(in oklab, var(--sage) 18%, transparent), transparent 70%)",
-          }}
-        />
-        <div className="mx-auto max-w-3xl px-6 py-28 text-center">
-          <h2 className="display-1">When you&apos;re ready, we&apos;re here.</h2>
-          <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            There&apos;s no pressure. Begin when it feels right. You can pause at any moment.
-          </p>
-          <Link to="/onboarding/welcome" className="btn-primary mt-10">
-            Begin Seen
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
-      <section id="partner" className="border-t border-border/60 bg-background">
-        <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+      <section id="partner" className="landing-section landing-band-light">
+        <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
           <motion.p {...reveal(0)} className="eyebrow text-center text-muted-foreground">
             Partner with us
           </motion.p>
@@ -377,17 +240,28 @@ function ContactSection({ reveal }: { reveal: ReturnType<typeof useScrollReveal>
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !description.trim()) return;
-    setSent(true);
+    if (!email.trim() || !description.trim() || submitting) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      await sendContactMessage({ email: email.trim(), message: description.trim() });
+      setSent(true);
+    } catch {
+      setError("We couldn't send your message right now. Please try again in a moment.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <section id="contact" className="border-t border-border/60 bg-sand/30">
-      <div className="mx-auto max-w-2xl px-6 py-28 md:py-32">
-        <motion.p {...reveal(0)} className="eyebrow text-center text-muted-foreground">
+    <section id="contact" className="landing-section landing-band-sage">
+      <div className="mx-auto max-w-2xl px-6 py-20 md:py-24">
+        <motion.p {...reveal(0)} className="eyebrow text-center">
           Contact us
         </motion.p>
         <motion.h2 {...reveal(0.05)} className="display-2 mt-3 text-center">
@@ -410,7 +284,12 @@ function ContactSection({ reveal }: { reveal: ReturnType<typeof useScrollReveal>
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="surface-card space-y-6 p-8 md:p-10">
+            <form onSubmit={(e) => void handleSubmit(e)} className="surface-card space-y-6 p-8 md:p-10">
+              {error ? (
+                <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
+                  {error}
+                </p>
+              ) : null}
               <div>
                 <label htmlFor="contact-email" className="mb-1.5 block text-sm font-medium">
                   Email
@@ -422,6 +301,7 @@ function ContactSection({ reveal }: { reveal: ReturnType<typeof useScrollReveal>
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={submitting}
                   className="field-soft w-full bg-background"
                 />
               </div>
@@ -436,12 +316,13 @@ function ContactSection({ reveal }: { reveal: ReturnType<typeof useScrollReveal>
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={5}
-                  className="field-soft w-full resize-none bg-background"
+                  disabled={submitting}
+                  className="field-soft h-auto min-h-[8rem] w-full resize-y rounded-2xl bg-background py-3 leading-normal"
                 />
               </div>
-              <button type="submit" className="btn-primary w-full">
+              <button type="submit" disabled={submitting} className="btn-primary w-full min-h-11 disabled:opacity-50">
                 <Send className="h-4 w-4" />
-                Send message
+                {submitting ? "Sending…" : "Send message"}
               </button>
             </form>
           )}

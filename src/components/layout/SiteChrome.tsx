@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { openConsentPreferences } from "@/components/common/ConsentBanner";
+import { SeenLogo } from "@/components/brand/SeenLogo";
 import { cn } from "@/lib/utils";
 import { scrollToSection } from "@/lib/scroll-to-section";
 
@@ -15,16 +17,21 @@ function NavSectionLink({
   id,
   label,
   hero,
+  onNavigate,
+  className,
 }: {
   id: string;
   label: string;
   hero?: boolean;
+  onNavigate?: () => void;
+  className?: string;
 }) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
+    onNavigate?.();
     if (location.pathname === "/") {
       scrollToSection(id);
       return;
@@ -39,6 +46,7 @@ function NavSectionLink({
       className={cn(
         "transition-colors duration-300",
         hero ? "text-white/78 hover:text-white" : "nav-link",
+        className,
       )}
     >
       {label}
@@ -53,6 +61,27 @@ export function SiteHeader({
   transparent?: boolean;
   hero?: boolean;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <header
       className={cn(
@@ -65,31 +94,86 @@ export function SiteHeader({
       )}
     >
       <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="group flex items-center gap-2.5">
-          <span className="logo-mark grid h-9 w-9 place-items-center transition-transform duration-300 group-hover:scale-105">
-            <Heart className="h-4 w-4 text-sage" strokeWidth={1.6} />
-          </span>
-          <span
+        <Link to="/" className="group flex items-center gap-2.5" onClick={closeMenu}>
+          <SeenLogo
+            tone={hero ? "light" : "default"}
             className={cn(
-              "font-serif text-[1.35rem] tracking-tight",
-              hero ? "text-white" : "text-foreground",
+              "transition-transform duration-300 group-hover:scale-105",
+              hero ? "h-14 sm:h-16" : "h-12 sm:h-14",
             )}
-          >
-            Seen
-          </span>
+          />
         </Link>
         <nav className="hidden items-center gap-8 text-sm md:flex">
           {NAV_SECTIONS.map(({ label, id }) => (
             <NavSectionLink key={id} id={id} label={label} hero={hero} />
           ))}
         </nav>
-        <Link
-          to="/login"
-          className={cn("px-5 py-2.5 text-xs", hero ? "btn-hero-primary" : "btn-primary")}
-        >
-          Login
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/login"
+            className={cn(
+              "hidden min-h-11 items-center px-5 text-xs md:inline-flex",
+              hero ? "btn-hero-primary" : "btn-primary",
+            )}
+          >
+            Login
+          </Link>
+          <button
+            type="button"
+            className={cn(
+              "grid h-11 w-11 place-items-center rounded-full md:hidden",
+              hero
+                ? "text-white hover:bg-white/12"
+                : "text-foreground hover:bg-muted",
+            )}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
+
+      {menuOpen ? (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="fixed inset-0 z-40 bg-foreground/35 md:hidden"
+            onClick={closeMenu}
+          />
+          <div
+            id="mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
+            className={cn(
+              "fixed inset-x-0 top-[4.5rem] z-50 border-b border-border/60 bg-background px-6 py-6 shadow-[var(--shadow-elevated)] md:hidden",
+            )}
+          >
+            <nav className="flex flex-col gap-1">
+              {NAV_SECTIONS.map(({ label, id }) => (
+                <NavSectionLink
+                  key={id}
+                  id={id}
+                  label={label}
+                  onNavigate={closeMenu}
+                  className="flex min-h-11 items-center text-base text-foreground"
+                />
+              ))}
+            </nav>
+            <Link
+              to="/login"
+              onClick={closeMenu}
+              className="btn-primary mt-6 flex min-h-11 w-full items-center justify-center"
+            >
+              Login
+            </Link>
+          </div>
+        </>
+      ) : null}
     </header>
   );
 }
@@ -99,12 +183,9 @@ export function SiteFooter() {
     <footer className="border-t border-border/50 bg-background/90">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <span className="logo-mark grid h-9 w-9 place-items-center">
-              <Heart className="h-4 w-4 text-sage" strokeWidth={1.6} />
-            </span>
-            <span className="font-serif text-xl">Seen</span>
-          </div>
+          <Link to="/" className="inline-block">
+            <SeenLogo className="h-14 sm:h-16" />
+          </Link>
           <p className="mt-4 max-w-xs text-xs leading-relaxed text-muted-foreground">
             Seen is peer support, not a substitute for professional mental healthcare. If
             you&apos;re in crisis, please reach out to a licensed provider.
@@ -113,11 +194,10 @@ export function SiteFooter() {
         <FooterCol
           title="About"
           links={[
-            ["About Us", "/#about"],
+            ["About Us", "/about"],
             ["Mission & Vision", "/#mission"],
             ["Partner with us", "/#partner"],
             ["Contact Us", "/#contact"],
-            ["FAQ", "/#faq"],
           ]}
         />
         <FooterCol

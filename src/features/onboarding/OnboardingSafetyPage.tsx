@@ -1,10 +1,24 @@
 import { LifeBuoy, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { OnboardingStep } from "@/components/onboarding/OnboardingStep";
+import { queryKeys } from "@/hooks/useApiQueries";
+import { putOnboarding, getMe } from "@/lib/api/users";
+import { useAuthStore } from "@/stores/auth";
 import { useOnboarding } from "@/stores/onboarding";
 
 export function OnboardingSafetyPage() {
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((s) => s.setUser);
   const {
+    experiences,
+    journeyDuration,
+    supportLookingFor,
+    journeyNotes,
+    languages,
+    pronouns,
+    location,
+    genderPreference,
     acknowledgedSafety,
     acknowledgedModeration,
     acknowledgedAge18,
@@ -15,6 +29,25 @@ export function OnboardingSafetyPage() {
 
   const canContinue = acknowledgedSafety && acknowledgedModeration && acknowledgedAge18;
 
+  const handleComplete = async () => {
+    await putOnboarding({
+      experiences,
+      journeyDuration,
+      supportLookingFor,
+      journeyNotes,
+      languages,
+      pronouns,
+      location: location || null,
+      genderPreference,
+      acknowledgedSafety,
+      acknowledgedModeration,
+      acknowledgedAge18,
+    });
+    const user = await getMe();
+    setUser(user);
+    queryClient.setQueryData(queryKeys.me, user);
+  };
+
   return (
     <OnboardingStep
       eyebrow="A gentle note about safety"
@@ -23,6 +56,7 @@ export function OnboardingSafetyPage() {
       next="/matching"
       canContinue={canContinue}
       nextLabel="Find my match"
+      onNext={handleComplete}
     >
       <div className="space-y-3">
         <div className="rounded-2xl border border-clay/30 bg-clay-soft p-5">
@@ -31,8 +65,9 @@ export function OnboardingSafetyPage() {
             <div>
               <p className="font-medium text-foreground">If today is heavy</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                You can reach a trained human, 24/7, at <strong>988</strong> in the US,{" "}
-                <strong>116 123</strong> (Samaritans) in the UK, or visit our{" "}
+                You can reach a trained human, 24/7 — for example <strong>02 2327 2327</strong> in
+                Italy, <strong>0800 111 0 111</strong> in Germany, <strong>988</strong> in the US —
+                or visit our{" "}
                 <Link to="/support" className="underline">
                   crisis resources page
                 </Link>
