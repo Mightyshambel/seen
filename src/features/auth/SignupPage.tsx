@@ -24,6 +24,7 @@ export function SignupPage() {
   const { setLanguages, setPronouns, setLocation } = useOnboarding();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [notRobot, setNotRobot] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {

@@ -95,6 +95,9 @@ export function LandingPage() {
                   Find your person
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </Link>
+                <Link to="/onboarding/welcome" className="btn-hero-secondary">
+                  I want to help someone remember
+                </Link>
               </div>
               <div className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-xs">
                 <Trust icon={<Lock className="h-3.5 w-3.5" />} label="End-to-end private" />
