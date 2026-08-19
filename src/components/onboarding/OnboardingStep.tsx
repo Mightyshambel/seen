@@ -13,7 +13,7 @@ interface Props {
   canContinue?: boolean;
   skipTo?: string;
   affirmation?: string;
-  onNext?: () => void;
+  onNext?: () => void | Promise<void>;
 }
 
 function OnboardingActionBar({
@@ -25,9 +25,9 @@ function OnboardingActionBar({
 }: Pick<Props, "next" | "nextLabel" | "canContinue" | "skipTo" | "onNext">) {
   const navigate = useNavigate();
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!canContinue || !next) return;
-    onNext?.();
+    await onNext?.();
     navigate(next);
   };
 
@@ -45,7 +45,7 @@ function OnboardingActionBar({
           type="button"
           disabled={!canContinue || !next}
           onClick={handleContinue}
-          className="btn-primary min-h-11 px-7 py-3 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-primary min-h-11 px-7 py-3 disabled:opacity-40"
         >
           {nextLabel}
           <ArrowRight className="h-4 w-4" />

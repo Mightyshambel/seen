@@ -289,7 +289,7 @@ export function SettingsRadioGroup({
       {options.map((option) => {
         const active = value === option.value;
         return (
-          <label key={option.value} className="flex cursor-pointer items-start gap-3">
+          <label key={option.value} className="flex items-start gap-3">
             <span
               className={cn(
                 "mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition-colors duration-300",

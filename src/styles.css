@@ -318,7 +318,6 @@
   .btn-primary:disabled {
     opacity: 0.45;
     transform: none;
-    cursor: not-allowed;
   }
 
   .btn-primary:focus-visible,
@@ -663,7 +662,9 @@
     color: color-mix(in oklab, var(--palette-ivory) 88%, white);
   }
 
-  .landing-band-sage .border-border\/60 {
+  .landing-band-sage .border-border\/60,
+  .landing-band-sage .border-border\/70,
+  .landing-band-sage .divide-border\/60 > :not([hidden]) ~ :not([hidden]) {
     border-color: oklch(1 0 0 / 0.18);
   }
 
@@ -707,6 +708,10 @@
 
   .landing-band-sage .bg-sage-soft {
     background-color: oklch(1 0 0 / 0.16);
+  }
+
+  .landing-band-sage .bg-background {
+    background-color: oklch(1 0 0 / 0.95);
   }
 }
 

@@ -171,7 +171,28 @@ export function SignupPage() {
           }
           {...register("confirmPassword")}
         />
-        <AuthSubmitButton disabled={isSubmitting}>Sign up</AuthSubmitButton>
+        {/* "I'm not a robot" gate */}
+        <label className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 transition-colors hover:bg-muted/40">
+          <span
+            role="checkbox"
+            aria-checked={notRobot}
+            tabIndex={0}
+            onClick={() => setNotRobot((v) => !v)}
+            onKeyDown={(e) => e.key === " " && setNotRobot((v) => !v)}
+            className={`grid h-5 w-5 shrink-0 place-items-center rounded border-2 transition-colors ${
+              notRobot ? "border-sage bg-sage" : "border-border bg-background"
+            }`}
+          >
+            {notRobot && (
+              <svg viewBox="0 0 10 8" className="h-3 w-3 text-primary-foreground" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                <path d="M1 4l2.5 2.5L9 1" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </span>
+          <span className="text-sm text-foreground">I'm not a robot</span>
+        </label>
+
+        <AuthSubmitButton disabled={isSubmitting || !notRobot}>Sign up</AuthSubmitButton>
         <AuthDivider />
         <SocialAuthButtons />
       </form>
